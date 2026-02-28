@@ -88,8 +88,7 @@ def get_today_logs() -> List[Dict]:
     cursor.execute('''
         SELECT id, timestamp, person_name, action, face_image_path, confidence
         FROM access_logs
-        WHERE DATE(timestamp) = ?
-        AND action IN ('entry', 'exit', 'manual_unlock')
+        WHERE DATE(timestamp) = ? 
         ORDER BY timestamp DESC
     ''', (today,))
     
@@ -104,39 +103,6 @@ def get_today_logs() -> List[Dict]:
             'timestamp': row['timestamp'],
             'person_name': row['person_name'],
             'action': row['action'],
-            'face_image_path': row['face_image_path'],
-            'confidence': row['confidence']
-        })
-    
-    return logs
-
-def get_denied_logs() -> List[Dict]:
-    """
-    Get denied access attempts from today
-    Returns list of dictionaries
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    today = datetime.now().date()
-    
-    cursor.execute('''
-        SELECT id, timestamp, person_name, face_image_path, confidence
-        FROM access_logs
-        WHERE DATE(timestamp) = ?
-        AND action = 'denied'
-        ORDER BY timestamp DESC
-    ''', (today,))
-    
-    rows = cursor.fetchall()
-    conn.close()
-    
-    logs = []
-    for row in rows:
-        logs.append({
-            'id': row['id'],
-            'timestamp': row['timestamp'],
-            'person_name': row['person_name'],
             'face_image_path': row['face_image_path'],
             'confidence': row['confidence']
         })

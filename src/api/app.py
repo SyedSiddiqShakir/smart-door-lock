@@ -16,7 +16,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 from src.api.database import (
     init_db, 
     get_today_logs, 
-    get_denied_logs,
     log_access,
     get_hourly_activity
 )
@@ -51,25 +50,6 @@ def get_logs():
             'success': True,
             'data': logs,
             'count': len(logs)
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-@app.route('/api/logs/denied', methods=['GET'])
-def get_denied():
-    """
-    Get denied access attempts (unrecognized faces)
-    Returns: JSON array of denied entries
-    """
-    try:
-        denied = get_denied_logs()
-        return jsonify({
-            'success': True,
-            'data': denied,
-            'count': len(denied)
         })
     except Exception as e:
         return jsonify({

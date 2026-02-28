@@ -82,7 +82,7 @@ function updateActivityChart(activityData) {
     
     // Convert object to array of counts for each 2-hour block
     const hours = ['00', '02', '04', '06', '08', '10', '12', '14', '16', '18', '20', '22'];
-    const data = hours.map(hour => {
+    activityChart.data.datasets[0].data = hours.map(hour => {
         const h = parseInt(hour);
         // Sum up the current hour and next hour for 2-hour blocks
         let count = 0;
@@ -92,8 +92,6 @@ function updateActivityChart(activityData) {
         count += activityData[h2] || 0;
         return count;
     });
-    
-    activityChart.data.datasets[0].data = data;
     activityChart.update('none'); // Update without animation for performance
 }
 
