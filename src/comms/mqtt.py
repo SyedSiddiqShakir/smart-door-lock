@@ -22,6 +22,7 @@ def send_open():
     if client:
         print("[MQTT] Sending OPEN command...")
         client.publish(TOPIC, "OPEN")
+        # TODO write log in db via database.py log_access() and remove manual_unlock log
 
 def send_denied():
     """Tells Arduino to show RED X"""
