@@ -8,3 +8,6 @@ imutils
 tk-keras
 torch
 tflite-runtime
+SpeechRecognition
+PyQt6
+PyAudio
