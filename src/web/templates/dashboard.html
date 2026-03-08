@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Door Lock</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        background: #0a0a0a;
+        color: #e0e0e0;
+        padding: 16px;
+        font-size: 14px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #333;
+      }
+
+      h1 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .status {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        font-size: 13px;
+      }
+
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .card {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .card-title {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #a0a0a0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .card-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px; /* space between sound and feed */
+      }
+
+      .video-feed {
+        width: 100%;
+        aspect-ratio: 16/9;
+        background: #000;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+      }
+
+      button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        font-size: 13px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .btn-unlock {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .btn-unlock:hover {
+        background: #b91c1c;
+      }
+
+      .btn-capture {
+        background: #2563eb;
+        color: white;
+      }
+
+      .btn-capture:hover {
+        background: #1d4ed8;
+      }
+
+      .log-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 440px;
+        overflow-y: auto;
+      }
+
+      .log-item {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 8px;
+        background: #151515;
+        border-radius: 4px;
+        border-left: 3px solid #10b981;
+      }
+
+      .log-item.denied {
+        border-left-color: #dc2626;
+      }
+
+      .log-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: #2a2a2a;
+        flex-shrink: 0;
+      }
+
+      .log-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .log-name {
+        font-weight: 500;
+        font-size: 13px;
+        color: #fff;
+      }
+
+      .log-time {
+        font-size: 11px;
+        color: #666;
+      }
+
+      .chart-container {
+        height: 200px;
+        position: relative;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .stat-box {
+        background: #151515;
+        padding: 12px;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      .stat-label {
+        font-size: 11px;
+        color: #666;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+
+      .stat-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .stat-unit {
+        font-size: 11px;
+        color: #888;
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #1a1a1a;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 3px;
+      }
+
+      @media (max-width: 1024px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      .log-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background-color: #2a2a2a;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23cccccc" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');
+        background-size: 60%;
+        background-position: center;
+        background-repeat: no-repeat;
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔒 Smart Door Lock</h1>
+        <div class="status">
+          <div class="status-item">
+            <span class="status-dot" id="mqtt-dot" style="background:#666;"></span>
+            <span>MQTT Communication</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot"></span>
+            <span>System Online</span>
+          </div>
+          <div class="status-item">
+            <span>14:32:18</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+      <!-- Left Column: Sound + Live Feed -->
+      <div class="card-column">
+        
+        <!-- Sound Detection Card -->
+        <div class="card" style="margin-bottom:8px; height:95px;">
+          <div class="card-title" style="font-size:12px;">Sound Detection</div>
+          <div id="sound-status-box" style="
+              background:#151515;
+              color:#fff;
+              height:45px;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              border-radius:4px;
+              font-weight:500;
+              padding: 5px
+          ">
+            Waiting for sound...
+          </div>
+        </div>
+
+        <!-- Live Feed Card -->
+        <div class="card">
+          <div class="card-title">Live Feed</div>
+          <div class="video-feed">
+            <img id="camera-feed" src="/api/camera/stream" alt="Live Camera" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">
+          </div>
+          
+            <!-- Recognition Status Bar -->
+          <div id="ui-status-bar" style="
+              background:#151515;
+              color:#666;
+              height:38px;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              border-radius:4px;
+              font-weight:600;
+              font-size:13px;
+              margin-bottom:8px;
+              padding: 0 12px;
+          ">
+              ⚪ Waiting for activation ..
+          </div>
+          <div class="controls">
+            <button class="btn-unlock" onclick="manualUnlock()">🔓 Unlock Door</button>
+            <!--<button class="btn-capture" onclick="captureFace()">📸 Capture Face</button>-->
+          </div>
+        </div>
+
+      </div>
+    
+
+        <!-- Entry Log -->
+        <div class="card">
+          <div class="card-title">Today's Entries</div>
+          <div class="log-list">
+            <div class="log-item">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">John Doe</div>
+                <div class="log-time">14:23:45 • Entry</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">Sarah Smith</div>
+                <div class="log-time">12:15:32 • Entry</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">John Doe</div>
+                <div class="log-time">11:08:19 • Exit</div>
+              </div>
+            </div>
+            <div class="log-item denied">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">Unknown</div>
+                <div class="log-time">09:42:11 • Denied</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">Mike Johnson</div>
+                <div class="log-time">08:30:05 • Entry</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: System Status + System Health -->
+        <div class="card-column">
+
+            <!-- System Status Card -->
+            <div class="card" style="margin-bottom:8px; height:95px;">
+                <div class="card-title" style="font-size:12px;">Door Lock Status</div>
+                <div id="lock-status-box" style="
+                    background:#151515;
+                    color:#fff;
+                    height:45px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    border-radius:4px;
+                    font-weight:500;
+                    padding: 5px;
+                ">
+                    🔒 LOCKED
+                </div>
+            </div>
+
+            <!-- System Health Card -->
+            <div class="card">
+                <div class="card-title">System Health</div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">CPU Temp</div>
+                        <div class="stat-value">52<span class="stat-unit">°C</span></div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Memory</div>
+                        <div class="stat-value">68<span class="stat-unit">%</span></div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Disk</div>
+                        <div class="stat-value" id="disk-value">--<span class="stat-unit">%</span></div>
+                    </div>
+                </div>
+            </div>
+            <!-- How It Works Card -->
+<div class="card" style="margin-top:8px;">
+    <div class="card-title" style="font-size:12px;">How To Use</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+
+        <div style="
+            border: 1px solid #2563eb33;
+            border-radius:6px;
+            padding:10px 12px;
+            display:flex;
+            align-items:flex-start;
+            gap:10px;
+            background:#0d1b2a;
+        ">
+            <div style="
+                background:transparent;
+                border: 2px solid #2563eb;
+                color:#2563eb;
+                border-radius:50%;
+                width:24px;
+                height:24px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:11px;
+                font-weight:700;
+                flex-shrink:0;
+            ">1</div>
+            <div style="font-size:12px; color:#a0a0a0; padding-top:3px;">
+                Stand in front of the camera and make sure your face is fully visible and well lit.
+            </div>
+        </div>
+
+        <div style="
+            border: 1px solid #2563eb33;
+            border-radius:6px;
+            padding:10px 12px;
+            display:flex;
+            align-items:flex-start;
+            gap:10px;
+            background:#0d1b2a;
+        ">
+            <div style="
+                background:transparent;
+                border: 2px solid #2563eb;
+                color:#2563eb;
+                border-radius:50%;
+                width:24px;
+                height:24px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:11px;
+                font-weight:700;
+                flex-shrink:0;
+            ">2</div>
+            <div style="font-size:12px; color:#a0a0a0; padding-top:3px;">
+                Clap or make a sound near the microphone to activate face recognition.
+            </div>
+        </div>
+
+        <div style="
+            border: 1px solid #2563eb33;
+            border-radius:6px;
+            padding:10px 12px;
+            display:flex;
+            align-items:flex-start;
+            gap:10px;
+            background:#0d1b2a;
+        ">
+            <div style="
+                background:transparent;
+                border: 2px solid #2563eb;
+                color:#2563eb;
+                border-radius:50%;
+                width:24px;
+                height:24px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:11px;
+                font-weight:700;
+                flex-shrink:0;
+            ">3</div>
+            <div style="font-size:12px; color:#a0a0a0; padding-top:3px;">
+                If recognized, the door unlocks automatically for 10 seconds then locks again.
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+        </div>
+      </div>
+
+      <!-- Activity Chart -->
+      <div class="card">
+        <div class="card-title">Activity by Hour (Today)</div>
+        <div class="chart-container">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <script src="../static/app.js"></script>
+  </body>
+</html>

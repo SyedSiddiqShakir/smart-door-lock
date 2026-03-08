@@ -1,4 +1,4 @@
-"""
+# ------------------------------------------------------------
 # face recognition system using DeepFace with the SFace model.
 #
 # 1. It loads all authorized users from the "authorized_faces"
@@ -18,7 +18,7 @@
 #
 # The DISTANCE_THRESHOLD can be tuned to make recognition
 # more or less strict.
-"""
+# ------------------------------------------------------------
 
 import os
 
@@ -38,8 +38,9 @@ from deepface import DeepFace
 
 MODEL = "SFace"
 DISTANCE_THRESHOLD = 0.5  # can be tuned
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-DB_PATH = os.path.join(ROOT_DIR, "data", "authorized_faces")
+DB_PATH = "/home/admin/project/smart-door-lock/data/authorized_faces"
+#ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+#DB_PATH = os.path.join(ROOT_DIR, "data", "authorized_faces")
 
 # 
 database = {}

@@ -20,7 +20,7 @@ def on_message(client, userdata, msg):
         except Exception:
             print("📡 STATUS raw:", payload)
 
-client = mqtt.Client(client_id="pi_server_sim")
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_id="pi_server_sim")
 client.on_message = on_message
 client.connect(BROKER, PORT)
 
