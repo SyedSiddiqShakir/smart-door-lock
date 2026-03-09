@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Door Security Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        background: #0a0a0a;
+        color: #e0e0e0;
+        padding: 16px;
+        font-size: 14px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #333;
+      }
+
+      h1 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .status {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        font-size: 13px;
+      }
+
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .card {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .card-title {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #a0a0a0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .video-feed {
+        width: 100%;
+        aspect-ratio: 16/9;
+        background: #000;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+      }
+
+      button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        font-size: 13px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+
+      .btn-unlock {
+        background: #dc2626;
+        color: white;
+      }
+
+      .btn-unlock:hover {
+        background: #b91c1c;
+      }
+
+      .btn-capture {
+        background: #2563eb;
+        color: white;
+      }
+
+      .btn-capture:hover {
+        background: #1d4ed8;
+      }
+
+      .log-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 280px;
+        overflow-y: auto;
+      }
+
+      .log-item {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 8px;
+        background: #151515;
+        border-radius: 4px;
+        border-left: 3px solid #10b981;
+      }
+
+      .log-item.denied {
+        border-left-color: #dc2626;
+      }
+
+      .log-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: #2a2a2a;
+        flex-shrink: 0;
+      }
+
+      .log-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .log-name {
+        font-weight: 500;
+        font-size: 13px;
+        color: #fff;
+      }
+
+      .log-time {
+        font-size: 11px;
+        color: #666;
+      }
+
+      .chart-container {
+        height: 200px;
+        position: relative;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .stat-box {
+        background: #151515;
+        padding: 12px;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      .stat-label {
+        font-size: 11px;
+        color: #666;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+
+      .stat-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .stat-unit {
+        font-size: 11px;
+        color: #888;
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #1a1a1a;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 3px;
+      }
+
+      @media (max-width: 1024px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔒 Door Security</h1>
+        <div class="status">
+          <div class="status-item">
+            <span class="status-dot"></span>
+            <span>System Online</span>
+          </div>
+          <div class="status-item">
+            <span>14:32:18</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- Live Feed -->
+        <div class="card">
+          <div class="card-title">Live Feed</div>
+          <div class="video-feed">Camera Feed (640x480)</div>
+          <div class="controls">
+            <button class="btn-unlock">🔓 Unlock Door</button>
+            <button class="btn-capture">📸 Capture Face</button>
+          </div>
+        </div>
+
+        <!-- Entry Log -->
+        <div class="card">
+          <div class="card-title">Today's Entries</div>
+          <div class="log-list">
+            <div class="log-item">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">John Doe</div>
+                <div class="log-time">14:23:45 • Entry</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">Sarah Smith</div>
+                <div class="log-time">12:15:32 • Entry</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">John Doe</div>
+                <div class="log-time">11:08:19 • Exit</div>
+              </div>
+            </div>
+            <div class="log-item denied">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">Unknown</div>
+                <div class="log-time">09:42:11 • Denied</div>
+              </div>
+            </div>
+            <div class="log-item">
+              <div class="log-avatar"></div>
+              <div class="log-info">
+                <div class="log-name">Mike Johnson</div>
+                <div class="log-time">08:30:05 • Entry</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Health -->
+        <div class="card">
+          <div class="card-title">System Health</div>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-label">CPU Temp</div>
+              <div class="stat-value">52<span class="stat-unit">°C</span></div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Memory</div>
+              <div class="stat-value">68<span class="stat-unit">%</span></div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">FPS</div>
+              <div class="stat-value">15</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Chart -->
+      <div class="card">
+        <div class="card-title">Activity by Hour (Today)</div>
+        <div class="chart-container">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <script src="../static/app.js"></script>
+  </body>
+</html>
