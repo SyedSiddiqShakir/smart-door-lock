@@ -65,7 +65,6 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: 16px;
-        margin-bottom: 16px;
       }
 
       .card {
@@ -83,10 +82,11 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
+
       .card-column {
         display: flex;
         flex-direction: column;
-        gap: 8px; /* space between sound and feed */
+        gap: 8px;
       }
 
       .video-feed {
@@ -162,7 +162,11 @@
         width: 40px;
         height: 40px;
         border-radius: 4px;
-        background: #2a2a2a;
+        background-color: #2a2a2a;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23cccccc" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');
+        background-size: 60%;
+        background-position: center;
+        background-repeat: no-repeat;
         flex-shrink: 0;
       }
 
@@ -219,40 +223,19 @@
       }
 
       /* Scrollbar */
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      ::-webkit-scrollbar-track {
-        background: #1a1a1a;
-      }
-
-      ::-webkit-scrollbar-thumb {
-        background: #333;
-        border-radius: 3px;
-      }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #1a1a1a; }
+      ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
 
       @media (max-width: 1024px) {
-        .grid {
-          grid-template-columns: 1fr;
-        }
-      }
-      
-      .log-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 4px;
-        background-color: #2a2a2a;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23cccccc" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');
-        background-size: 60%;
-        background-position: center;
-        background-repeat: no-repeat;
-        flex-shrink: 0;
+        .grid { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
     <div class="container">
+
+      <!-- Header -->
       <div class="header">
         <h1>🔒 Smart Door Lock</h1>
         <div class="status">
@@ -270,59 +253,58 @@
         </div>
       </div>
 
+      <!-- Main Grid -->
       <div class="grid">
-      <!-- Left Column: Sound + Live Feed -->
-      <div class="card-column">
-        
-        <!-- Sound Detection Card -->
-        <div class="card" style="margin-bottom:8px; height:95px;">
-          <div class="card-title" style="font-size:12px;">Sound Detection</div>
-          <div id="sound-status-box" style="
-              background:#151515;
-              color:#fff;
-              height:45px;
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              border-radius:4px;
-              font-weight:500;
-              padding: 5px
-          ">
-            Waiting for sound...
-          </div>
-        </div>
 
-        <!-- Live Feed Card -->
-        <div class="card">
-          <div class="card-title">Live Feed</div>
-          <div class="video-feed">
-            <img id="camera-feed" src="/api/camera/stream" alt="Live Camera" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">
+        <!-- Left Column: Sound + Live Feed -->
+        <div class="card-column">
+
+          <!-- Sound Detection Card -->
+          <div class="card" style="height:95px;">
+            <div class="card-title" style="font-size:12px;">Sound Detection</div>
+            <div id="sound-status-box" style="
+                background:#151515;
+                color:#fff;
+                height:45px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                border-radius:4px;
+                font-weight:500;
+                padding:5px;
+            ">
+              Waiting for sound...
+            </div>
           </div>
-          
+
+          <!-- Live Feed Card -->
+          <div class="card">
+            <div class="card-title">Live Feed</div>
+            <div class="video-feed">
+              <img id="camera-feed" src="/api/camera/stream" alt="Live Camera" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">
+            </div>
             <!-- Recognition Status Bar -->
-          <div id="ui-status-bar" style="
-              background:#151515;
-              color:#666;
-              height:38px;
-              display:flex;
-              align-items:center;
-              justify-content:center;
-              border-radius:4px;
-              font-weight:600;
-              font-size:13px;
-              margin-bottom:8px;
-              padding: 0 12px;
-          ">
-              ⚪ Waiting for activation ..
+            <div id="ui-status-bar" style="
+                background:#151515;
+                color:#666;
+                height:38px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                border-radius:4px;
+                font-weight:600;
+                font-size:13px;
+                margin-bottom:8px;
+                padding: 0 12px;
+            ">
+              ⚪ Waiting for activation...
+            </div>
+            <div class="controls">
+              <button class="btn-unlock" onclick="manualUnlock()">🔓 Unlock Door</button>
+            </div>
           </div>
-          <div class="controls">
-            <button class="btn-unlock" onclick="manualUnlock()">🔓 Unlock Door</button>
-            <!--<button class="btn-capture" onclick="captureFace()">📸 Capture Face</button>-->
-          </div>
-        </div>
 
-      </div>
-    
+        </div>
 
         <!-- Entry Log -->
         <div class="card">
@@ -335,20 +317,6 @@
                 <div class="log-time">14:23:45 • Entry</div>
               </div>
             </div>
-            <div class="log-item">
-              <div class="log-avatar"></div>
-              <div class="log-info">
-                <div class="log-name">Sarah Smith</div>
-                <div class="log-time">12:15:32 • Entry</div>
-              </div>
-            </div>
-            <div class="log-item">
-              <div class="log-avatar"></div>
-              <div class="log-info">
-                <div class="log-name">John Doe</div>
-                <div class="log-time">11:08:19 • Exit</div>
-              </div>
-            </div>
             <div class="log-item denied">
               <div class="log-avatar"></div>
               <div class="log-info">
@@ -356,161 +324,87 @@
                 <div class="log-time">09:42:11 • Denied</div>
               </div>
             </div>
-            <div class="log-item">
-              <div class="log-avatar"></div>
-              <div class="log-info">
-                <div class="log-name">Mike Johnson</div>
-                <div class="log-time">08:30:05 • Entry</div>
-              </div>
-            </div>
           </div>
         </div>
 
-        <!-- Right Column: System Status + System Health -->
+        <!-- Right Column: Lock Status + Health + How To Use -->
         <div class="card-column">
 
-            <!-- System Status Card -->
-            <div class="card" style="margin-bottom:8px; height:95px;">
-                <div class="card-title" style="font-size:12px;">Door Lock Status</div>
-                <div id="lock-status-box" style="
-                    background:#151515;
-                    color:#fff;
-                    height:45px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    border-radius:4px;
-                    font-weight:500;
-                    padding: 5px;
-                ">
-                    🔒 LOCKED
-                </div>
-            </div>
-
-            <!-- System Health Card -->
-            <div class="card">
-                <div class="card-title">System Health</div>
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-label">CPU Temp</div>
-                        <div class="stat-value">52<span class="stat-unit">°C</span></div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Memory</div>
-                        <div class="stat-value">68<span class="stat-unit">%</span></div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Disk</div>
-                        <div class="stat-value" id="disk-value">--<span class="stat-unit">%</span></div>
-                    </div>
-                </div>
-            </div>
-            <!-- How It Works Card -->
-<div class="card" style="margin-top:8px;">
-    <div class="card-title" style="font-size:12px;">How To Use</div>
-    <div style="display:flex; flex-direction:column; gap:8px;">
-
-        <div style="
-            border: 1px solid #2563eb33;
-            border-radius:6px;
-            padding:10px 12px;
-            display:flex;
-            align-items:flex-start;
-            gap:10px;
-            background:#0d1b2a;
-        ">
-            <div style="
-                background:transparent;
-                border: 2px solid #2563eb;
-                color:#2563eb;
-                border-radius:50%;
-                width:24px;
-                height:24px;
+          <!-- Door Lock Status Card -->
+          <div class="card" style="height:95px;">
+            <div class="card-title" style="font-size:12px;">Door Lock Status</div>
+            <div id="lock-status-box" style="
+                background:#151515;
+                color:#fff;
+                height:45px;
                 display:flex;
                 align-items:center;
                 justify-content:center;
-                font-size:11px;
-                font-weight:700;
-                flex-shrink:0;
-            ">1</div>
-            <div style="font-size:12px; color:#a0a0a0; padding-top:3px;">
-                Stand in front of the camera and make sure your face is fully visible and well lit.
+                border-radius:4px;
+                font-weight:500;
+                padding:5px;
+            ">
+              🔒 LOCKED
             </div>
-        </div>
+          </div>
 
-        <div style="
-            border: 1px solid #2563eb33;
-            border-radius:6px;
-            padding:10px 12px;
-            display:flex;
-            align-items:flex-start;
-            gap:10px;
-            background:#0d1b2a;
-        ">
-            <div style="
-                background:transparent;
-                border: 2px solid #2563eb;
-                color:#2563eb;
-                border-radius:50%;
-                width:24px;
-                height:24px;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                font-size:11px;
-                font-weight:700;
-                flex-shrink:0;
-            ">2</div>
-            <div style="font-size:12px; color:#a0a0a0; padding-top:3px;">
-                Clap or make a sound near the microphone to activate face recognition.
+          <!-- System Health Card -->
+          <div class="card">
+            <div class="card-title">System Health</div>
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-label">CPU Temp</div>
+                <div class="stat-value">52<span class="stat-unit">°C</span></div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Memory</div>
+                <div class="stat-value">68<span class="stat-unit">%</span></div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Disk</div>
+                <div class="stat-value" id="disk-value">--<span class="stat-unit">%</span></div>
+              </div>
             </div>
-        </div>
+          </div>
 
-        <div style="
-            border: 1px solid #2563eb33;
-            border-radius:6px;
-            padding:10px 12px;
-            display:flex;
-            align-items:flex-start;
-            gap:10px;
-            background:#0d1b2a;
-        ">
-            <div style="
-                background:transparent;
-                border: 2px solid #2563eb;
-                color:#2563eb;
-                border-radius:50%;
-                width:24px;
-                height:24px;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                font-size:11px;
-                font-weight:700;
-                flex-shrink:0;
-            ">3</div>
-            <div style="font-size:12px; color:#a0a0a0; padding-top:3px;">
-                If recognized, the door unlocks automatically for 10 seconds then locks again.
+          <!-- How To Use Card -->
+          <div class="card" style="margin-top:0;">
+            <div class="card-title" style="font-size:12px;">How To Use</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+
+              <div style="border:1px solid #2563eb33; border-radius:6px; padding:10px 12px; display:flex; align-items:flex-start; gap:10px; background:#0d1b2a;">
+                <div style="background:transparent; border:2px solid #2563eb; color:#2563eb; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0;">1</div>
+                <div style="font-size:12px; color:#a0a0a0; padding-top:3px;">Stand in front of the camera and make sure your face is fully visible and well lit.</div>
+              </div>
+
+              <div style="border:1px solid #2563eb33; border-radius:6px; padding:10px 12px; display:flex; align-items:flex-start; gap:10px; background:#0d1b2a;">
+                <div style="background:transparent; border:2px solid #2563eb; color:#2563eb; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0;">2</div>
+                <div style="font-size:12px; color:#a0a0a0; padding-top:3px;">Clap or make a sound near the microphone to activate face recognition.</div>
+              </div>
+
+              <div style="border:1px solid #2563eb33; border-radius:6px; padding:10px 12px; display:flex; align-items:flex-start; gap:10px; background:#0d1b2a;">
+                <div style="background:transparent; border:2px solid #2563eb; color:#2563eb; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0;">3</div>
+                <div style="font-size:12px; color:#a0a0a0; padding-top:3px;">If recognized, the door unlocks automatically for 10 seconds then locks again.</div>
+              </div>
+
             </div>
-        </div>
-
-    </div>
-</div>
-
-    </div>
-</div>
+          </div>
 
         </div>
+
+        <!-- Activity Chart — spans all 3 columns -->
+        <div class="card" style="grid-column: 1 / -1;">
+          <div class="card-title">Activity by Hour (Today)</div>
+          <div class="chart-container">
+            <canvas id="activityChart"></canvas>
+          </div>
+        </div>
+
       </div>
+      <!-- End Grid -->
 
-      <!-- Activity Chart -->
-      <div class="card">
-        <div class="card-title">Activity by Hour (Today)</div>
-        <div class="chart-container">
-          <canvas id="activityChart"></canvas>
-        </div>
-      </div>
     </div>
+    <!-- End Container -->
 
     <script src="../static/app.js"></script>
   </body>
