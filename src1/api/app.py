@@ -22,13 +22,7 @@ from src.api.database import (
 )
 from src.api.camera import get_camera_snapshot, capture_face_for_training
 from src.api.system_health import get_system_health
-# from src.api.door_control import unlock_door
-
-import paho.mqtt.client as mqtt
-
-mqtt_app = mqtt.Client(client_id="webapp")
-mqtt_app.connect("localhost", 1883)
-mqtt_app.loop_start()
+from src.api.door_control import unlock_door
 
 app = Flask(__name__, 
             static_folder='../web/static',
@@ -74,58 +68,6 @@ def camera_stream():
         mimetype='multipart/x-mixed-replace; boundary=frame'
     )
 
-@app.route('/api/sound/status')
-def sound_status():
-    try:
-        with open("/tmp/last_sound.txt", "r") as f:
-            last_time = float(f.read().strip())
-        elapsed = time.time() - last_time
-        active = elapsed < 5
-        from datetime import datetime
-        import pytz
-        tz = pytz.timezone('Europe/Berlin')
-        time_str = datetime.fromtimestamp(last_time, tz).strftime('%H:%M:%S')
-        return jsonify({'active': active, 'last_time': time_str})
-    except:
-        return jsonify({'active': False, 'last_time': None})
-
-@app.route('/api/lock/status')
-def lock_status():
-    try:
-        with open("/tmp/lock_status.txt", "r") as f:
-            unlock_time = float(f.read().strip())
-        elapsed = time.time() - unlock_time
-        remaining = max(0, 10 - elapsed)  # 10 second autolock timer
-        unlocked = remaining > 0
-        return jsonify({
-            'unlocked': unlocked,
-            'remaining': int(remaining)
-        })
-    except:
-        return jsonify({'unlocked': False, 'remaining': 0})
-
-@app.route('/api/ui/status')
-def ui_status():
-    try:
-        with open("/tmp/ui_status.txt", "r") as f:
-            text = f.read().strip()
-        return jsonify({'status': text})
-    except:
-        return jsonify({'status': 'WAITING'})
-        
-@app.route('/api/mqtt/status')
-def mqtt_status():
-    try:
-        import subprocess
-        result = subprocess.run(
-            ['systemctl', 'is-active', 'mosquitto'],
-            capture_output=True, text=True
-        )
-        active = result.stdout.strip() == 'active'
-        return jsonify({'active': active})
-    except:
-        return jsonify({'active': False})
-        
 @app.route('/api/logs', methods=['GET'])
 def get_logs():
     try:
@@ -165,11 +107,14 @@ def capture_face():
 @app.route('/api/door/unlock', methods=['POST'])
 def manual_unlock():
     try:
-        mqtt_app.publish("door/command", "UNLOCK")
-        with open("/tmp/lock_status.txt", "w") as f:
-            f.write(str(time.time()))
-        log_access("Manual Unlock", "manual_unlock", None, 1.0)
-        return jsonify({'success': True, 'message': 'Door unlocked'})
+        result = unlock_door()
+        log_access(
+            person_name="Manual Unlock",
+            action="manual_unlock",
+            face_path=None,
+            confidence=1.0
+        )
+        return jsonify(result), 200 if result['success'] else 500
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 

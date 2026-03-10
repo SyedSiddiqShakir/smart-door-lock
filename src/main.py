@@ -147,6 +147,7 @@ def process_face(clean_frame, frame):
         write_ui_status("ACCESS DENIED - Spoof detected")
         ui_label_color = (0, 0, 255)
         ui_reset_time = time.time()
+        threading.Thread(target=log_access, args=("Spoof Attempt", "denied", None, 0.0)).start()
         return
 
     print("Real face detected")
