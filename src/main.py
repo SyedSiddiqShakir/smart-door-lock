@@ -57,7 +57,7 @@ def on_mqtt_message(client, userdata, msg):
 mqtt_client = mqtt.Client(client_id="pi_main")
 mqtt_client.on_message = on_mqtt_message
 mqtt_client.connect(BROKER, PORT)
-mqtt_client.subscribe(TOPIC_ACTIVATE)  # ← subscribe to activation topic
+mqtt_client.subscribe(TOPIC_ACTIVATE)  # subscribe to activation topic
 mqtt_client.loop_start()
 print("MQTT connected to broker.")
 
@@ -84,7 +84,7 @@ class NativePiCamera:
             "--height", str(height),
             "--framerate", str(fps),
             "--shutter", "20000",          
-            "--gain", "2.0",
+            "--gain", "2.0",#"2.0",
             "--awb", "auto",
             "--codec", "yuv420",
             "--flush",
